@@ -1,0 +1,15 @@
+{
+  "name": "crypto-multi-sender",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "<kevin.janada@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "lerna": "^5.2.0"
+  },
+  "private": true,
+  "workspaces": [
+    "packages/app",
+    "packages/contracts"
+  ]
+}
