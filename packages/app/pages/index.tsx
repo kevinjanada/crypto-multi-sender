@@ -10,7 +10,6 @@ import {
   Select,
   Box,
   Flex,
-  Spacer,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
@@ -19,64 +18,116 @@ import {
   Textarea,
   Button,
 } from "@chakra-ui/react";
+import { useForm, FieldValues } from "react-hook-form";
+import { ethers } from "ethers";
+
+interface FormValues {
+  token: string;
+  decimals: string;
+  addressesAndAmounts: string;
+}
 
 const Home: NextPage = () => {
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm();
+
+  const onSubmit = (values: FieldValues) => {
+    const { token, decimals, addressesAndAmounts } = values as FormValues
+    const { addresses, amounts } = parseAddressesAndAmounts(addressesAndAmounts);
+    console.log(addresses);
+    console.log(amounts);
+    // TODO: Call contract function. also add fee to total amount of ether sent 
+  }
+
+  const parseAddressesAndAmounts = (addresesAndAmounts: string) => {
+    const rows = addresesAndAmounts.split("\n");
+    const addresses = [];
+    const amounts = [];
+    for (let row of rows) {
+      const split = row.split(',');
+      const address = split[0];
+      const amount = ethers.utils.parseEther(split[1]).toString();
+      addresses.push(address);
+      amounts.push(amount);
+    }
+    return { addresses, amounts };
+  }
+
   return (
     <>
       <Navbar />
       <Container minH="80vh" maxW="1120px">
         {/* TODO: Create Form. Refer to  https://chakra-ui.com/getting-started/with-hook-form */}
         <Box maxW="720px" py={24}>
-          <Flex direction={{ base: "column", md: "row" }}>
-            <FormControl
-              flex={{ base: "1", md: "4" }}
-              mb="6"
-            >
-              <FormLabel>Select Token</FormLabel>
-              <Select>
-                <option value="matic">Matic Native Token</option>
-              </Select>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Flex direction={{ base: "column", md: "row" }}>
+              {/* Select Token */}
+              <FormControl
+                flex={{ base: "1", md: "4" }}
+                mb="6"
+              >
+                <FormLabel>Select Token</FormLabel>
+                <Select
+                  id="token"
+                  {...register("token", {})}
+                >
+                  <option value="matic">Matic Native Token</option>
+                </Select>
+              </FormControl>
+              {/* Decimal Places */}
+              <FormControl
+                flex={{ base: "1", md: "1" }}
+                ml={{ base: "0px", md: "12px" }}
+                mb="6"
+              >
+                <FormLabel>Decimal Places</FormLabel>
+                <NumberInput
+                  id="decimals"
+                  defaultValue={18}
+                  isReadOnly
+                >
+                  <NumberInputField {...register("decimals", {})} />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </FormControl>
+            </Flex>
+            {/* Addresses with amounts */}
+            <FormControl>
+              <FormLabel>Addresses with amounts</FormLabel>
+              <Textarea
+                id="addressesAndAmounts"
+                placeholder="Insert addresses with amounts separated by comma"
+                {...register("addressesAndAmounts", {
+                  required: 'This is required',
+                })}
+              />
             </FormControl>
-            <FormControl
-              flex={{ base: "1", md: "1" }}
-              ml={{ base: "0px", md: "12px" }}
-              mb="6"
+            <Button
+              type="submit"
+              mt="12"
+              w="100%"
+              variant="outline"
+              color="brand.lightBlue"
+              background="brand.blue"
+              _hover={{
+                color: "brand.blue",
+                background: "brand.lightBlue",
+                borderColor: "brand.lightBlue",
+              }}
+              _disabled={{
+                color: "brand.lightBlue",
+                background: "grey"
+              }}
             >
-              <FormLabel>Decimal Places</FormLabel>
-              <NumberInput defaultValue={18} isReadOnly>
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-            </FormControl>
-          </Flex>
-
-          <FormControl>
-            <FormLabel>Addresses with amounts</FormLabel>
-            <Textarea placeholder="Insert addresses with amounts separated with comma" />
-          </FormControl>
-
-
-          <Button
-            mt="12"
-            w="100%"
-            variant="outline"
-            color="brand.lightBlue"
-            background="brand.blue"
-            _hover={{
-              color: "brand.blue",
-              background: "brand.lightBlue",
-              borderColor: "brand.lightBlue",
-            }}
-            _disabled={{
-              color: "brand.lightBlue",
-              background: "grey"
-            }}
-          >
-            Send Tokens
-          </Button>
+              Send Tokens
+            </Button>
+          </form>
         </Box>
       </Container>
       <Footer />
