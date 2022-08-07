@@ -9,7 +9,8 @@ This app allows user to batch send tokens to multiple addresses
 - [ ] Deploy to Ethereum
 
 ## App
+- [ ] Parse list of addresses and amounts from textarea
+- [ ] Submit transaction
 - [ ] Read and Parse CSV
 - [ ] Show CSV rows on screen
-- [ ] Submit transaction
 - [ ] Handle available networks

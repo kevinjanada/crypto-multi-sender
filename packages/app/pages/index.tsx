@@ -17,9 +17,11 @@ import {
   NumberDecrementStepper,
   Textarea,
   Button,
+  Text,
 } from "@chakra-ui/react";
 import { useForm, FieldValues } from "react-hook-form";
 import { ethers } from "ethers";
+import { useState } from "react";
 
 interface FormValues {
   token: string;
@@ -31,6 +33,7 @@ const Home: NextPage = () => {
   const {
     handleSubmit,
     register,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -40,6 +43,11 @@ const Home: NextPage = () => {
     console.log(addresses);
     console.log(amounts);
     // TODO: Call contract function. also add fee to total amount of ether sent 
+  }
+
+  const showAddressWithAmountsExample = () => {
+    const example = `0x795aE9223FBb6a12a6c71391755Be1707E52EB72,0.005\n0x42D57aAA086Ee6575Ddd3b502af1b07aEa91E495,0.006`;
+    setValue("addressesAndAmounts", example);
   }
 
   const parseAddressesAndAmounts = (addresesAndAmounts: string) => {
@@ -99,7 +107,15 @@ const Home: NextPage = () => {
             </Flex>
             {/* Addresses with amounts */}
             <FormControl>
-              <FormLabel>Addresses with amounts</FormLabel>
+              <Flex justify="space-between">
+                <FormLabel>Addresses with amounts</FormLabel>
+                <Text
+                  as="u"
+                  _hover={{ cursor: "pointer" }}
+                  onClick={showAddressWithAmountsExample}>
+                  Show Example
+                </Text>
+              </Flex>
               <Textarea
                 id="addressesAndAmounts"
                 placeholder="Insert addresses with amounts separated by comma"

@@ -1,30 +1,58 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-
+import testAddresses from "./testAddresses";
 
 describe("BatchSender", () => {
   let batchSender: any;
 
-  const amountToSend1 = ethers.utils.parseEther("0.01");
-  const amountToSend2 = ethers.utils.parseEther("0.02");
-  const amountToSend3 = ethers.utils.parseEther("0.03");
+  const BASE_FEE = ethers.utils.parseEther("10") // 10 ETH
+  const RATE = 50;
 
-  const amounts = [ amountToSend1, amountToSend2, amountToSend3 ];
-
+  const amounts = testAddresses.map(() => ethers.utils.parseEther("0.0000000001"));
   const total = amounts.reduce((acc, amt) => amt.add(acc));
 
   describe("Deployment", () => {
     it("Should set the correct parameters", async () => {
-      const FEE = 500 // 500 basis points = 5 pct
       const BatchSender = await ethers.getContractFactory("BatchSender");
-      batchSender = await BatchSender.deploy(FEE);
+      batchSender = await BatchSender.deploy(BASE_FEE);
 
       const fee = await batchSender.fee();
-      expect(fee).to.equal(FEE);
+      expect(fee).to.equal(BASE_FEE);
     })
   });
 
   describe("Multisend Ether", () => {
+    // 337 Addresses
+    it(`Should correctly calculate fee for ${testAddresses.length}`, async () => {
+      // 300 addresses = 60 MATIC FEE
+      // 37 addresses = 10 MATIC FEE
+      // ---------------------------- +
+      // 337 addresses = 70 MATIC FEE
+      const fee = await batchSender.calculateFee(testAddresses.length);
+
+      const excess = testAddresses.length % RATE;
+      const temp = testAddresses.length - excess;
+      const multiplier = temp / RATE
+      const expectedFee = BASE_FEE.mul(multiplier).add(BASE_FEE);
+
+      expect(fee).to.equal(expectedFee);
+    })
+
+    it("Should not be able to send without paying fee", async () => {
+      let error = false;
+      try {
+        const tx = await batchSender.multisendEther(
+          testAddresses,
+          amounts,
+          { value: total }
+        );
+        await tx.wait();
+      } catch (err) {
+        error = true;
+      }
+      expect(error).to.be.true;
+    })
+
     it("Should send correct amounts to respective addresses", async () => {
       const signers = await ethers.getSigners();
 
@@ -39,30 +67,31 @@ describe("BatchSender", () => {
         signers[3].address,
       ];
 
-      const tx = await batchSender.multisendEther(addresses, amounts, { value: total });
+      const amountToSend1 = ethers.utils.parseEther("0.001");
+      const amountToSend2 = ethers.utils.parseEther("0.001");
+      const amountToSend3 = ethers.utils.parseEther("0.001");
+
+      const amounts = [amountToSend1, amountToSend2, amountToSend3]
+      const total = amounts.reduce((acc, amt) => amt.add(acc));
+
+      const fee = await batchSender.calculateFee(addresses.length);
+
+      const tx = await batchSender.multisendEther(addresses, amounts, { value: total.add(fee) });
       const receipt = await tx.wait();
 
-      const fee1 = await batchSender.calculateFee(amountToSend1);
-      const fee2 = await batchSender.calculateFee(amountToSend2);
-      const fee3 = await batchSender.calculateFee(amountToSend3);
-
-      const amountToReceive1 = amountToSend1.sub(fee1);
-      const amountToReceive2 = amountToSend2.sub(fee2);
-      const amountToReceive3 = amountToSend3.sub(fee3);
-      
       // Balance end
       const addr1BalanceEnd = await ethers.provider.getBalance(signers[1].address);
       const addr2BalanceEnd = await ethers.provider.getBalance(signers[2].address);
       const addr3BalanceEnd = await ethers.provider.getBalance(signers[3].address);
 
-      expect(addr1BalanceEnd).to.equal(addr1BalanceStart.add(amountToReceive1));
-      expect(addr2BalanceEnd).to.equal(addr2BalanceStart.add(amountToReceive2));
-      expect(addr3BalanceEnd).to.equal(addr3BalanceStart.add(amountToReceive3));
+      expect(addr1BalanceEnd).to.equal(addr1BalanceStart.add(amountToSend1));
+      expect(addr2BalanceEnd).to.equal(addr2BalanceStart.add(amountToSend2));
+      expect(addr3BalanceEnd).to.equal(addr3BalanceStart.add(amountToSend3));
     });
 
     it("Should get platform fee correctly", async () => {
       const contractBalance = await ethers.provider.getBalance(batchSender.address);
-      const feeReceived = await batchSender.calculateFee(total);
+      const feeReceived = await batchSender.calculateFee(3); // 3 addresses
 
       expect(contractBalance).to.equal(feeReceived);
     });
@@ -86,10 +115,6 @@ describe("BatchSender", () => {
         deployerBalanceAfterWithdraw.sub(deployerBalance)
           .lte(feeReceived)
       ).to.equal(true);
-      expect(
-        deployerBalanceAfterWithdraw.sub(deployerBalance)
-          .gt(ethers.utils.parseEther('0.0028'))
-      ).to.equal(true);
     });
 
     it("Should be able to set new platform fee", async () => {
@@ -100,7 +125,5 @@ describe("BatchSender", () => {
       const fee = await batchSender.fee();
       expect(fee).to.equal(NEW_FEE);
     });
-
   });
-
 });
