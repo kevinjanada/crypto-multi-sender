@@ -23,7 +23,7 @@ export const useBatchSenderContract = () => {
     }
     const contract = new ethers.Contract(batchSenderContractAddress, BatchSender.abi, provider?.getSigner());
     setBatchSenderContract(contract);
-  }, [wallet]);
+  }, [wallet, provider]);
 
   return batchSenderContract;
 }

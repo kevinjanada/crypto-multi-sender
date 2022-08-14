@@ -1,5 +1,8 @@
 {
+  "137": {
+    "BatchSender": "0x49b65F2625B56570b048366bcDa9801da9C63A51"
+  },
   "80001": {
-    "BatchSender": "0x0b8F0F5E7EB112aa525306505dFb96FdDD626Eb7"
+    "BatchSender": "0x31b45E11F370FA514F0BBE7406d53500e228c570"
   }
 }

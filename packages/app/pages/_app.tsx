@@ -5,6 +5,9 @@ import { walletAtom, web3ProviderAtom } from "../store";
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useAtom } from "jotai";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { getSupportedChainIds } from '../utils';
 
 const theme = extendTheme({ 
   colors: {
@@ -15,12 +18,15 @@ const theme = extendTheme({
   },
 })
 
+
 function MyApp({ Component, pageProps }: AppProps) {
   const { initialState } = pageProps;
   useHydrateAtoms(initialState ? [walletAtom, initialState] : [])
 
-  const [wallet, setWallet] = useAtom(walletAtom);
-  const [web3Provider, setWeb3Provider] = useAtom(web3ProviderAtom)
+  const supportedChainIds = getSupportedChainIds();
+
+  const [, setWallet] = useAtom(walletAtom);
+  const [, setWeb3Provider] = useAtom(web3ProviderAtom)
 
   useEffect(() => {
     const checkWeb3Provider = async () => {
@@ -32,28 +38,40 @@ function MyApp({ Component, pageProps }: AppProps) {
       const { chainId } = await provider.getNetwork();
       setWallet({ address, chainId });
 
-      (provider.provider as any).on("chainChanged", function(chain: string) {
+      if (!supportedChainIds.includes(Number(chainId))) {
+        toast("Unsupported Network");
+      }
+
+      (provider.provider as any).on("chainChanged", async function(chain: string) {
+        if (!supportedChainIds.includes(Number(chain))) {
+          toast("Unsupported Network");
+        }
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
         setWallet({
-          ...wallet,
+          address,
           chainId: Number(chain),
         })
       });
 
-      (provider.provider as any).on("accountsChanged", function(accounts: any) {
+      (provider.provider as any).on("accountsChanged", async function(accounts: any) {
+        const { chainId } = await provider.getNetwork();
         setWallet({
-          ...wallet,
+          chainId,
           address: accounts[0],
         })
       });
 
       setWeb3Provider(provider);
     }
+
     checkWeb3Provider();
   }, []);
 
   return (
     <ChakraProvider theme={theme}>
       <Component {...pageProps} />
+      <ToastContainer />
     </ChakraProvider>
   )
 }

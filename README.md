@@ -3,14 +3,14 @@ This app allows user to batch send tokens to multiple addresses
 
 # TODO:
 ## Contracts
-- [ ] Add fee to Smart Contract
-- [ ] Unit Tests
-- [ ] Deploy to Polygon
+- [x] Add fee to Smart Contract
+- [x] Unit Tests
+- [x] Deploy to Polygon
 - [ ] Deploy to Ethereum
 
 ## App
-- [ ] Parse list of addresses and amounts from textarea
-- [ ] Submit transaction
+- [x] Parse list of addresses and amounts from textarea
+- [x] Submit transaction
+- [x] Handle available networks
 - [ ] Read and Parse CSV
 - [ ] Show CSV rows on screen
-- [ ] Handle available networks

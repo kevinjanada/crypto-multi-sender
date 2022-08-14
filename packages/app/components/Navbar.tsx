@@ -3,10 +3,12 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { walletAtom } from "../store";
+import { useNetworkInfo } from "../hooks/network";
 
 export default function Navbar() {
   const [{ address }, setWallet] = useAtom(walletAtom);
   const [displayAddress, setDisplayAddress] = useState("");
+  const networkInfo = useNetworkInfo();
 
   useEffect(() => {
     const formatAddress = (address: string) => {
@@ -39,7 +41,7 @@ export default function Navbar() {
           />
           <Flex alignItems="center" width="200px" justifyContent="space-between">
             <Img
-              src="/polygon-token.png"
+              src={networkInfo?.image}
               alt="polygon-token"
               height="36px"
               width="36px"
