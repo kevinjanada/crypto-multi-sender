@@ -3,7 +3,10 @@ import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
 import "./tasks";
 
-const privateKey = process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY : "0xasdfasdf" as string;
+const privateKey =
+  process.env.PRIVATE_KEY ?
+  process.env.PRIVATE_KEY :
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as string;
 
 const config: HardhatUserConfig = {
   solidity: "0.8.9",
