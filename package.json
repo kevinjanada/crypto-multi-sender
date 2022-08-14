@@ -8,7 +8,7 @@
     "lerna": "^5.2.0"
   },
   "scripts": {
-    "build:app": "npx lerna run build --scope=app"
+    "start:app": "npx lerna run build --scope=app && npx lerna run start --scope=app"
   },
   "private": true,
   "workspaces": [
