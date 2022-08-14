@@ -1,5 +1,5 @@
 {
-  "name": "crypto-multi-sender",
+  "name": "root",
   "version": "1.0.0",
   "main": "index.js",
   "author": "<kevin.janada@gmail.com>",
@@ -27,7 +27,6 @@
   },
   "private": true,
   "workspaces": [
-    "packages/app",
-    "packages/contracts"
+    "packages/*",
   ]
 }
