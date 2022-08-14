@@ -7,6 +7,20 @@
   "devDependencies": {
     "lerna": "^5.2.0"
   },
+  "dependencies": {
+    "@chakra-ui/react": "^2.2.4",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "contracts": "*",
+    "ethers": "^5.6.9",
+    "framer-motion": "^6",
+    "jotai": "^1.7.8",
+    "next": "12.2.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.34.0",
+    "react-toastify": "^9.0.8"
+  },
   "scripts": {
     "build:app": "npx lerna run build --scope=app",
     "start:app": "npx lerna run start --scope=app"
