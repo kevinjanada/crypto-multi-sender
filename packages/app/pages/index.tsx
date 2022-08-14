@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { useForm, FieldValues } from "react-hook-form";
 import { ethers } from "ethers";
-import { useState } from "react";
+import { useBatchSenderContract } from "../hooks/contracts";
 
 interface FormValues {
   token: string;
@@ -36,6 +36,8 @@ const Home: NextPage = () => {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm();
+
+  const batchSenderContract = useBatchSenderContract();
 
   const onSubmit = (values: FieldValues) => {
     const { token, decimals, addressesAndAmounts } = values as FormValues
