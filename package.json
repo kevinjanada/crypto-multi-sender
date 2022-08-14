@@ -7,6 +7,9 @@
   "devDependencies": {
     "lerna": "^5.2.0"
   },
+  "scripts": {
+    "start:app": "npx lerna run start --scope=app"
+  },
   "private": true,
   "workspaces": [
     "packages/app",
