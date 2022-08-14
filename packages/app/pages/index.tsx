@@ -77,7 +77,7 @@ const Home: NextPage = () => {
           <div>Transaction Success!</div>
           <div>Click on the link below to view your transaction</div>
           <div>
-            <a href={txLink} target="_blank">
+            <a href={txLink} target="_blank" rel="noreferrer">
               <u>{formatAddress(receipt.transactionHash, 24)}</u>
             </a>
           </div>
